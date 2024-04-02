@@ -1,3 +1,21 @@
+"""
+API routes for user registration, login, transactions, and account management.
+
+Includes routes for:
+
+- Registering a new user account
+- Logging in with email and password
+- Getting user details
+- Sending money to another user  
+- Receiving money from another user
+- Getting list of transactions
+- Withdrawing funds
+- Depositing funds
+- Setting a user's address
+- Setting a user's ID proof
+
+Uses SQLAlchemy and Pydantic models for data validation and database interactions.
+"""
 from models.usercreation import UserCreationManager , UserGroupManager , Login ,auth
 import json as jsn
 from models.utiliti import save_media_file
@@ -136,7 +154,7 @@ async def deposit(request:Request,expense_model: FromJSON[dict]):
     else:
         return json({"message": "Unauthorized"})
     
-    
+@route('/set_address',methods=['POST'])
 async def set_address(request:Request,expense_model: FromJSON[dict]):
     token = request.cookies.get("token")
     print(token)
@@ -151,7 +169,7 @@ async def set_address(request:Request,expense_model: FromJSON[dict]):
     else:
         return json({"message": "Unauthorized"})
     
-
+@route('/set_id',methods=['POST'])
 async def set_id(request:Request,expense_model: FromJSON[dict]):
     token = request.cookies.get("token")
     print(token)
