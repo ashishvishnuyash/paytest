@@ -46,3 +46,21 @@ class Transaction(SQLModel, table=True):
     receiveruser: Optional[int] = Field(foreign_key="user.id")
     status: Optional[int] = Field(foreign_key="transactionstatuses.id")
     
+
+class Addressproof(SQLModel, table=True):
+    id: Optional[int] = Field(primary_key=True)
+    user: Optional[int] = Field(foreign_key="user.id")
+    address: str
+    state : str
+    city: str
+    postal_code: str
+    nationality: str
+    
+
+class IDproof(SQLModel, table=True):
+    id: Optional[int] = Field(primary_key=True)
+    user: Optional[int] = Field(foreign_key="user.id")
+    id_type: str
+    id_number: str
+    id_erpiry_date: str
+    id_upload: str
