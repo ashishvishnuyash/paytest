@@ -64,3 +64,18 @@ class IDproof(SQLModel, table=True):
     id_number: str
     id_erpiry_date: str
     id_upload: str
+    
+
+
+class Fees(SQLModel, table=True):
+    id: int = Field(primary_key=True, index=True)
+    user : int = Field(foreign_key="user.id" ,default=0 )
+    setup_fee: float
+    yearly_fee: float
+    monthly_fee: float
+    
+    credit_mdr_percentage: float
+    credit_min_fee: float
+    
+    debit_mdr_percentage: float
+    debit_min_fee: float

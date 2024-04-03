@@ -19,7 +19,7 @@ Uses SQLAlchemy and Pydantic models for data validation and database interaction
 from models.usercreation import UserCreationManager , UserGroupManager , Login ,auth
 import json as jsn
 from models.utiliti import save_media_file
-from models.model import User , Group, Status, TransactionType, TransactionCurrency, TransactionStatuses, Transaction , Addressproof ,IDproof
+from models.model import User , Group, Status, TransactionType, TransactionCurrency, TransactionStatuses, Transaction , Addressproof ,IDproof,Fees
 from models.app import engine 
 from sqlmodel import Session ,select
 from blacksheep import Application, get , post ,FromJSON ,text ,route ,json ,Request
@@ -203,8 +203,34 @@ async def set_id(request:Request,expense_model: FromJSON[dict]):
     else:
         return json({"message": "Unauthorized"})
         
-    
-
+@app.cors("one")
+@route('/globle_fees',methods=['POST'])
+async def globle_fees(request:Request,expense_model: FromJSON[dict]):
+    token = request.cookies.get("token")
+    print(token)
+    data = expense_model.value
+    user = auth.authenticate(token)
+    if user:
+        with Session(engine) as session:
+            try:
+                fees=session.exec(select(Fees).where(Fees.user==0)).one()
+                fees.setup_fee =data['setup_fee']
+                fees.yearly_fee =data['transfer_fee']
+                fees.monthly_fee =data['withdraw_fee']
+                fees.credit_mdr_percentage =data['credit_mdr_percentage']
+                fees.credit_min_fee =data['credit_min_fee']
+                fees.debit_mdr_percentage =data['debit_mdr_percentage']
+                fees.debit_min_fee =data['debit_min_fee']
+                
+                session.add(fees)
+                session.commit()
+            except:
+                fees=Fees(user=0,setup_fee=data['setup_fee'],yearly_fee=data['transfer_fee'],monthly_fee=data['withdraw_fee'],credit_mdr_percentage=data['credit_mdr_percentage'],credit_min_fee=data['credit_min_fee'],debit_mdr_percentage=data['debit_mdr_percentage'],debit_min_fee=data['debit_min_fee'])
+                session.add(fees)
+                session.commit()
+            return json({"message": fees})
+    else:
+        return json({"message": "Unauthorized"})
 
 
 if __name__ == '__main__':
