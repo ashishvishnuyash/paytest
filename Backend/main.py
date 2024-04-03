@@ -251,5 +251,5 @@ async def userfees(request:Request,expense_model: FromJSON[dict]):
 if __name__ == '__main__':
     import uvicorn
 
-    uvicorn.run(app, host="localhost", port=44777, log_level="debug")
+    uvicorn.run(app,  port=44777, log_level="debug")
     
