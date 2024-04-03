@@ -231,6 +231,21 @@ async def globle_fees(request:Request,expense_model: FromJSON[dict]):
             return json({"message": fees})
     else:
         return json({"message": "Unauthorized"})
+@app.cors("one")
+@route('/userfees',methods=['POST'])
+async def userfees(request:Request,expense_model: FromJSON[dict]):
+    token = request.cookies.get("token")
+    print(token)
+    data = expense_model.value
+    user = auth.authenticate(token)
+    if user:
+        with Session(engine) as session:
+            fees = Fees(user=data["user"],setup_fee=data['setup_fee'],yearly_fee=data['transfer_fee'],monthly_fee=data['withdraw_fee'],credit_mdr_percentage=data['credit_mdr_percentage'],credit_min_fee=data['credit_min_fee'],debit_mdr_percentage=data['debit_mdr_percentage'],debit_min_fee=data['debit_min_fee'])
+            session.add(fees)
+            session.commit()
+            return json({"message": "fees added"})
+    else:
+        return json({"message": "Unauthorized"})
 
 
 if __name__ == '__main__':
