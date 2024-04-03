@@ -18,7 +18,7 @@ class User(SQLModel, table=True):
     email: str = Field(unique=True)
     group:  Optional[int] = Field(default=None, foreign_key="group.id")
     password: str
-    status: Optional[int] = Field(default=1, foreign_key="status.id")
+    status: Optional[int] = Field(default=2, foreign_key="status.id")
     
 class TransactionType(SQLModel, table=True):
     id: Optional[int] = Field(primary_key=True)

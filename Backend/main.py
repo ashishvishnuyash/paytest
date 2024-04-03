@@ -28,6 +28,18 @@ from blacksheep.cookies import Cookie
 
 
 app = Application()
+app.use_cors()
+cors = app.cors
+
+app.add_cors_policy(
+    "one",
+    allow_methods="GET POST PUT DELETE",
+    allow_origins="*",
+    allow_headers="Authorization",
+    allow_credentials=True,
+)
+
+@app.cors("one")
 @route('/register', methods=['POST'])
 async def registernewuser(expense_model: FromJSON[dict]):
     data=expense_model.value
@@ -44,7 +56,7 @@ async def registernewuser(expense_model: FromJSON[dict]):
     
 
     return text(f"User {user} created successfully.")
-
+@app.cors("one")
 @route('/login', methods=['POST'])
 async def login(expense_model: FromJSON[dict]):
     
@@ -62,7 +74,7 @@ async def login(expense_model: FromJSON[dict]):
         return r
     else:
         return json({"message": "Login failed"})
-
+@app.cors("one")
 @route('/userdetail',methods=['GET'])    
 async def userdetail(request:Request):
     token = request.cookies.get("token")
@@ -71,14 +83,16 @@ async def userdetail(request:Request):
     if user:
         #get address data
         with Session(engine) as session:
-            address=select(Addressproof).where(Addressproof.user==user.id).execute()
-            idproof=select(IDproof).where(IDproof.user==user.id).execute()
+            address=session.query(Addressproof).filter(Addressproof.user==user.id).first()
+            idproof=session.query(IDproof).filter(IDproof.user==user.id).first()
             return json({"message": "Login Successful", "user":
             user,"address":address,"idproof":idproof})
             
         
     else:
         return json({"message": "Unauthorized"})
+
+@app.cors("one")
 @route('/send',methods=['POST'])
 async def sendmoney(request:Request,expense_model: FromJSON[dict]):
     token = request.cookies.get("token")
@@ -95,6 +109,7 @@ async def sendmoney(request:Request,expense_model: FromJSON[dict]):
     else:
         return json({"message": "Unauthorized"})
 
+@app.cors("one")
 @route('/receive',methods=['POST'])
 async def receive(request:Request,expense_model: FromJSON[dict]):
     token = request.cookies.get("token")
@@ -112,6 +127,7 @@ async def receive(request:Request,expense_model: FromJSON[dict]):
     else:
         return json({"message": "Unauthorized"})
     
+@app.cors("one")
 @route('/transactions',methods=['GET'])
 async def transactions(request:Request):
     token = request.cookies.get("token")
@@ -124,6 +140,7 @@ async def transactions(request:Request):
     else:
         return json({"message": "Unauthorized"})
 
+@app.cors("one")
 @route('/withdraw',methods=['POST'])
 async def withdraw(request:Request,expense_model: FromJSON[dict]):
     token = request.cookies.get("token")
@@ -138,7 +155,8 @@ async def withdraw(request:Request,expense_model: FromJSON[dict]):
         return json({"message": "Transaction Successful"})
     else:
         return json({"message": "Unauthorized"})
-    
+
+@app.cors("one") 
 @route('/deposit',methods=['POST'])
 async def deposit(request:Request,expense_model: FromJSON[dict]):
     token = request.cookies.get("token")
@@ -147,13 +165,14 @@ async def deposit(request:Request,expense_model: FromJSON[dict]):
     if user:
         data = expense_model.value
         with Session(engine) as session:
-            money=Transaction(user=user.id,type=3,amount=data['amount'],fees=["fees"],total=data["total"],currency=data['currency'],receiveruser=user.id,status=1)
+            money=Transaction(user=user.id,type=3,amount=data['amount'],fees=data["fees"],total=data["total"],currency=1,receiveruser=user.id,status=1)
             session.add(money)
             session.commit()
         return json({"message": "Transaction Successful"})
     else:
         return json({"message": "Unauthorized"})
-    
+
+@app.cors("one") 
 @route('/set_address',methods=['POST'])
 async def set_address(request:Request,expense_model: FromJSON[dict]):
     token = request.cookies.get("token")
@@ -168,7 +187,8 @@ async def set_address(request:Request,expense_model: FromJSON[dict]):
             return json({"message": "address added"})
     else:
         return json({"message": "Unauthorized"})
-    
+
+@app.cors("one")
 @route('/set_id',methods=['POST'])
 async def set_id(request:Request,expense_model: FromJSON[dict]):
     token = request.cookies.get("token")
@@ -178,6 +198,10 @@ async def set_id(request:Request,expense_model: FromJSON[dict]):
         data = expense_model.value
         with Session(engine) as session:
             idproof=IDproof(user=user.id,id_no=data['id_no'],id_type=data['id_type'],id_expiry=data['id_expiry'],id_upload=save_media_file(data['id_upload']))
+            
+        return json({"message": "id added"})
+    else:
+        return json({"message": "Unauthorized"})
         
     
 
