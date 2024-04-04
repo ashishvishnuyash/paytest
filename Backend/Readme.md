@@ -1,19 +1,3 @@
-# Expense Tracker API
-
-## Overview
-
-Expense Tracker API is a Python web application built using the BlackSheep framework. It provides various API endpoints for user registration, login, transactions, and account management. The application uses SQLAlchemy and Pydantic models for data validation and database interactions.
-
-## Features
-
-- User registration and login
-- Token-based authentication
-- User details retrieval
-- Money transfer (send, receive)
-- Transaction history
-- Funds withdrawal and deposit
-- Setting user address and ID proof
-
 
 
 ## API Endpoints
@@ -148,3 +132,47 @@ Expense Tracker API is a Python web application built using the BlackSheep frame
     }
     ```
 
+### Global Fees Management
+
+- **URL:** `/globle_fees`
+- **Method:** POST
+- **Request Body:**
+
+    ```json
+    {
+        "setup_fee": 50,
+        "transfer_fee": 10,
+        "withdraw_fee": 5,
+        "credit_mdr_percentage": 2,
+        "credit_min_fee": 1,
+        "debit_mdr_percentage": 1.5,
+        "debit_min_fee": 0.5
+    }
+    ```
+
+### User-Specific Fees Management
+
+- **URL:** `/userfees`
+- **Method:** POST
+- **Request Body:**
+
+    ```json
+    {
+        "user": 1,
+        "setup_fee": 50,
+        "transfer_fee": 10,
+        "withdraw_fee": 5,
+        "credit_mdr_percentage": 2,
+        "credit_min_fee": 1,
+        "debit_mdr_percentage": 1.5,
+        "debit_min_fee": 0.5
+    }
+    ```
+
+## Contributing
+
+Feel free to open issues or submit pull requests for improvements, bug fixes, or new features.
+
+## License
+
+This project is licensed under the MIT License. See `LICENSE` for more details.

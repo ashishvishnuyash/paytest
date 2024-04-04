@@ -74,6 +74,8 @@ async def login(expense_model: FromJSON[dict]):
         return r
     else:
         return json({"message": "Login failed"})
+    
+
 @app.cors("one")
 @route('/userdetail',methods=['GET'])    
 async def userdetail(request:Request):
@@ -249,7 +251,5 @@ async def userfees(request:Request,expense_model: FromJSON[dict]):
 
 
 if __name__ == '__main__':
-    import uvicorn
-
-    uvicorn.run(app,  port=44777, log_level="debug")
+    app.run()
     
