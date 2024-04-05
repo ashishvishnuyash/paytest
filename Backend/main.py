@@ -42,20 +42,28 @@ app.add_cors_policy(
 @app.cors("one")
 @route('/register', methods=['POST'])
 async def registernewuser(expense_model: FromJSON[dict]):
-    data=expense_model.value
+    data = expense_model.value
     firstname = data["first_name"]
     lastname = data["last_name"]
     phone = data["phone"]
     email = data["email"]
     groupid = data["group_id"]
     password = data["password"]
-    # Validate user details
     statusid = data["status_id"]
-    # Create user
-    user = UserCreationManager.create_user(firstname=firstname,lastname=lastname,email=email,phone=phone,password=password,group_id=groupid,status_id=statusid)
-    
 
-    return text(f"User {user} created successfully.")
+    # Check if user with the provided email already exists
+    with Session(engine) as session:
+        existing_user = session.query(User).filter(User.email == email).first()
+
+        if existing_user:
+            return json({"message": f"User with email '{email}' already exists.", "status": False})
+
+        # Create new user if email doesn't exist
+        user = UserCreationManager.create_user(firstname=firstname, lastname=lastname, email=email, phone=phone, password=password, group_id=groupid, status_id=statusid)
+    
+    return json({"message": f"User '{firstname}' created successfully.", "status": True})
+
+
 @app.cors("one")
 @route('/login', methods=['POST'])
 async def login(expense_model: FromJSON[dict]):
@@ -200,6 +208,8 @@ async def set_id(request:Request,expense_model: FromJSON[dict]):
         data = expense_model.value
         with Session(engine) as session:
             idproof=IDproof(user=user.id,id_no=data['id_no'],id_type=data['id_type'],id_expiry=data['id_expiry'],id_upload=save_media_file(data['id_upload']))
+            session.add(idproof)
+            session.commit()
             
         return json({"message": "id added"})
     else:
