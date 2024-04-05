@@ -117,7 +117,7 @@ async def sendmoney(request:Request,expense_model: FromJSON[dict]):
         data = expense_model.value
         with Session(engine) as session:
             reciverid=UserCreationManager.get_user_by_email(data['reciver_email']).id
-            money=Transaction(user=user.id,type=1,amount=data['amount'],fees=["fees"],total=data["total"],currency=data['currency'],receiveruser=reciverid,status=1).save()
+            money=Transaction(user=user.id,type=1,amount=data['amount'],fees=["fees"],total=data["total"],currency=data['currency'],receiveruser=reciverid,status=2).save()
             session.add(money)
             session.commit()
         return json({"message": "Transaction Successful"})
