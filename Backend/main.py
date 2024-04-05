@@ -67,22 +67,27 @@ async def registernewuser(expense_model: FromJSON[dict]):
 @app.cors("one")
 @route('/login', methods=['POST'])
 async def login(expense_model: FromJSON[dict]):
-    
-    data=expense_model.value
+    data = expense_model.value
     email = data["email"]
     password = data["password"]
     
-    
-    user = Login(email, password).login()
-    if user:
+    # Check if user with the provided email exists
+    with Session(engine) as session:
+        user = session.query(User).filter(User.email == email).first()
         
-        r =json({"message": "Login Successful", "user":
-            user})
-        r.set_cookie(Cookie(name="token", value=user))
-        return r
-    else:
-        return json({"message": "Login failed"})
-    
+        if not user:
+            return json({"message": "User does not exist. Please register.", "status": False}, status=400)
+
+        # Authenticate user
+        authenticated_user = Login(email, password).login()
+        
+        if authenticated_user:
+            r = json({"message": "Login Successful", "user": authenticated_user})
+            r.set_cookie(Cookie(name="token", value=authenticated_user))  # Set user ID as token
+            return r
+        else:
+            return json({"message": "Incorrect password", "status": False}, status=400)
+
 
 @app.cors("one")
 @route('/userdetail',methods=['GET'])    
